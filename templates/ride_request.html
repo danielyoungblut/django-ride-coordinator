@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>
+        Hi {{ ride_request.appointment.creator.email }}, you have {{ action }} a guest for this
+        <a href="http://{{ domain }}/appointment/{{ ride_request.appointment.id }}">appointment</a>
+    </p>
+{#<form method="post" action="">#}
+{#    {% csrf_token %}#}
+{#    {{ form.as_p }}#}
+{#    <input type="submit" class="btn btn-default" value="Request Ride"/>#}
+{#</form>#}
+{% endblock %}

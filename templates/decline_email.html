@@ -1,0 +1,5 @@
+Hi {{ ride_request.requester.email }},
+<br>
+Unfortunately your ride request for the
+<a href="http://{{ domain }}/appointment/{{ ride_request.appointment.id }}">appointment</a>
+at {{ ride_request.appointment.desired_time }} from {{ ride_request.appointment.pickup }} to {{ ride_request.appointment.destination }} was declined.

@@ -1,0 +1,11 @@
+Hi {{ email }},
+<br>
+Unfortunately, the creator of the appointment
+at {{ appointment.desired_time }} from {{ appointment.pickup }}
+to {{ appointment.destination }} has cancelled the appointment.
+<br>
+{% if body %}
+    They sent the following message:
+    <br>
+    {{ body }}
+{% endif %}

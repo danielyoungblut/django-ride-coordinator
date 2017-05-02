@@ -1,0 +1,12 @@
+Hi {{ email }},
+<br>
+Unfortunately, a rider of the
+<a href="http://{{ domain }}/appointment/{{ appointment.id }}">appointment</a>
+at {{ appointment.desired_time }} from {{ appointment.pickup }}
+to {{ appointment.destination }} has cancelled.
+<br>
+{% if body %}
+    They sent the following message:
+    <br>
+    {{ body }}
+{% endif %}

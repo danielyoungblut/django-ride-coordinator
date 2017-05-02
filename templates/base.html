@@ -3,18 +3,22 @@
 <html lang="en">
 
 <head>
-    <title>{% block title %}User test{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="{{ STATIC_URL }}style.css" />
+    {% block head %}
+        <title>{% block title %}Yale Rides{% endblock %}</title>
+    {% endblock head %}
+    {% block css %}
+         <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    {% endblock %}
 </head>
 
 <body>
     <div id="header">
     {% block header %}
-    <a href="{% url 'index' %}">{% trans "Home" %}</a> |
-
+        <a href="{% url 'calendar' %}">{% trans "Calendar" %}</a>
+        <a href="{% url 'profile' %}">{% trans "Profile" %}</a>
+     |
     {% if user.is_authenticated %}
-        {% trans "Logged in" %}: {{ user.username }}
+        {% trans "Logged in" %}: {{ user.email }}
         (<a href="{% url 'auth_logout' %}">{% trans "Log out" %}</a> |
         <a href="{% url 'auth_password_change' %}">{% trans "Change password" %}</a>)
     {% else %}
@@ -33,8 +37,10 @@
         <hr />
     {% endblock %}
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+{% block js %}
+    <script src="{{ STATIC_URL }}js/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+{% endblock %}
 </body>
 
 </html>

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rides',
     'django.contrib.staticfiles',
     'registration',
+    'datetimewidget'
 ]
 
 MIDDLEWARE = [
@@ -54,10 +55,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mysite.urls'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
 SITE_ID = 1
 
 TEMPLATES = [
@@ -71,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -115,19 +113,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
+FORMAT_MODULE_PATH = [
+    "mysite.formats",
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = ''
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True

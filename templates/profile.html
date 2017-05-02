@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <p>Hello {{ username.email }}.</p>
+    <p>Upcoming appointments you created</p>
+    {% if created %}
+        <ul>
+            {% for foo in created %}
+                <li><a href="http://{{ domain }}/appointment/{{ foo.id }}">
+                    To: {{ foo.destination }} from: {{ foo.pickup }}. At {{ foo.desired_time }}.
+                    Currently you have {{ foo.num_people }} of {{ foo.max_people }} guests.</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <P>You have no appointments</P>
+    {% endif %}
+    <p>Upcoming confirmed ride requests</p>
+    {% if accepted %}
+        <ul>
+            {% for foo in accepted %}
+                <li><a href="http://{{ domain }}/appointment/{{ foo.id }}">
+                    To: {{ foo.destination }} from: {{ foo.pickup }}. At {{ foo.desired_time }}.
+                    Currently you have {{ foo.num_people }} of {{ foo.max_people }} guests.</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no upcoming rides</p>
+    {% endif %}
+{#<form method="post" action="">#}
+{#    {% csrf_token %}#}
+{#    {{ form.as_p }}#}
+{#    <input type="submit" class="btn btn-default" value="Request Ride"/>#}
+{#</form>#}
+{% endblock %}

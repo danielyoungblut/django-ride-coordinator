@@ -15,24 +15,30 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-# from django.contrib.auth import views
+from django.contrib.auth import views as auth_views
 from registration.backends.hmac.views import RegistrationView
 
 from rides import views
-#from rides.forms import LoginForm
-from rides.forms import RegistrationForm
+from rides.forms import RegistrationForm, AppointmentForm
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^home', views.home, name='home'),
+    url(r'^calendar', views.calendar, name='calendar'),
+    url(r'^profile/', views.ProfileView.as_view(), name='profile'),
+    url(r'^ride_request/(?P<ride_request_id>\d+)/(?P<action>accept|decline)/(?P<hash>[A-z0-9-_=]+)/$', views.RideRequestView.as_view(), name='ride_request'),
+    url(r'^appointment/create/$', views.AppointmentCreateView.as_view(), name='appointment_create'),
+    url(r'^appointment/(?P<appointment_id>\d+)/$', views.AppointmentView.as_view(), name='appointment_view'),
+    url(r'^appointment/delete/(?P<appointment_id>\d+)/$', views.AppointmentDeleteView.as_view(), name='appointment_delete'),
+    # url(r'^appointment/(?P<appointment_id>\d+)/(?P<action>accept|decline)/(?P<hash>[A-z0-9-_=]+)/$', views.AppointmentActionView.as_view(), name='appointment_action'),
+    url(r'^login/$', auth_views.login, name='login'),
+    url(r'^logout/$', auth_views.logout, name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/register/$',
         RegistrationView.as_view(
             form_class=RegistrationForm
         ),
         name='registration_register',
-    ),
+        ),
     url(r'^accounts/', include('registration.backends.hmac.urls')),
-
-    # url(r'^login/$', views.login, {'template_name': 'login.html', 'authentication_form': LoginForm}, name='login'),
-    # url(r'^logout/$', views.logout, {'next_page': '/login'}, name='logout'),
 ]
