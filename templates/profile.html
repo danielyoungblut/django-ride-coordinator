@@ -21,12 +21,25 @@
             {% for foo in accepted %}
                 <li><a href="http://{{ domain }}/appointment/{{ foo.id }}">
                     To: {{ foo.destination }} from: {{ foo.pickup }}. At {{ foo.desired_time }}.
-                    Currently you have {{ foo.num_people }} of {{ foo.max_people }} guests.</a>
+                    Currently there are {{ foo.num_people }} of {{ foo.max_people }} guests.</a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
         <p>You have no upcoming rides</p>
+    {% endif %}
+    <p>Pending ride requests</p>
+    {% if pending %}
+        <ul>
+            {% for foo in pending %}
+                <li><a href="http://{{ domain }}/appointment/{{ foo.id }}">
+                    To: {{ foo.appointment.destination }} from: {{ foo.appointment.pickup }}. At {{ foo.appointment.desired_time }}.
+                    Currently there are {{ foo.appointment.num_people }} of {{ foo.appointment.max_people }} guests.</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no pending requests</p>
     {% endif %}
 {#<form method="post" action="">#}
 {#    {% csrf_token %}#}

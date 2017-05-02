@@ -65,8 +65,11 @@ class Appointment(models.Model):
     pickup = models.CharField(
         default="Phelps Gate",
         max_length=128,
+        verbose_name="Pickup location"
     )
-    max_people = models.IntegerField()
+    max_people = models.IntegerField(
+        verbose_name="Max number of other riders"
+    )
     num_people = models.IntegerField(
         default=0,
     )
@@ -149,6 +152,12 @@ class Appointment(models.Model):
         )
         msg.content_subtype = 'html'
         return msg.send()
+
+    # def save(self, *args, **kwargs):
+    #     if not self.id:
+    #         self.available_end = self.desired_time
+    #         self.available_start = self.desired_time
+    #     super(Appointment, self).save(*args, **kwargs)
 
 
 class RideRequest(models.Model):

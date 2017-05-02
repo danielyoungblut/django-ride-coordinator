@@ -1,6 +1,7 @@
 from datetime import datetime
 from json import dumps
 
+import operator
 from django.contrib import messages
 from django.db.models.expressions import F
 from django.http.request import HttpRequest
@@ -17,12 +18,13 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, DeleteView
 from django.core import signing
 
+from mysite import login
 from rides.encoders import EventEncoder
-from rides.forms import AppointmentForm, RangeForm, EmailForm
+from rides.forms import AppointmentForm, RangeForm, EmailForm, LoginForm
 from rides.models import Appointment, Yalie, RideRequest
 
 
-@login_required(login_url="accounts/login/")
+# @login_required(login_url="accounts/login/")
 def home(request):
     details = None
     return render(
@@ -32,12 +34,35 @@ def home(request):
     )
 
 
-@login_required(login_url="accounts/login/")
+# @login_required(login_url="accounts/login/")
 def index(request):
     return HttpResponse("Hi, I will add stuff")
 
 
-@login_required(login_url="accounts/login/")
+class LoginView(TemplateView):
+    template_name = 'login.html'
+
+    def get(self, *args, **kwargs):
+        form = LoginForm()
+        return self.render_to_response({
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = LoginForm(
+            data=request.POST,
+        )
+        if form.is_valid():
+            login(request, form.cleaned_data['yalie'])
+            return HttpResponseRedirect(
+                redirect_to=request.get_full_path(),
+            )
+        return self.render_to_response({
+            'form': form,
+        })
+
+
+# @login_required(login_url="accounts/login/")
 def calendar(request):
     template_name = "calendar.html"
 
@@ -58,8 +83,6 @@ def calendar(request):
     return render(request, template_name)
 
 
-#currently unused???
-# @login_required(login_url="accounts/login/")
 class RideRequestView(TemplateView):
     template_name = "ride_request.html"
 
@@ -131,18 +154,26 @@ class AppointmentView(TemplateView):
     def get(self, request, appointment_id, *args, **kwargs):
         appointment = get_object_or_404(Appointment, id=appointment_id)
         riders = appointment.current_people.filter()
+        pending = RideRequest.objects.filter(
+            requester_id=self.request.user.id,
+            appointment_id=appointment.id,
+        )
         is_creator = False
         is_rider = False
+        is_requester = False
         if self.request.user.id == appointment.creator.id:
             is_creator = True
         elif self.request.user in riders:
             is_rider = True
+        elif pending:
+            is_requester = True
         return self.render_to_response(
             context={
                 'form': EmailForm(),
                 'appointment': appointment,
                 'is_creator': is_creator,
                 'is_rider': is_rider,
+                'is_requester': is_requester,
                 'domain': "127.0.0.1:8000"
             },
         )
@@ -240,34 +271,6 @@ class AppointmentDeleteView(TemplateView):
                 messages.success(request, "You have canceled your ride commitment")
             return redirect(calendar)
 
-
-# currently unused
-# class AppointmentActionView(TemplateView):
-#     template_name = "appointment_action.html"
-#
-#     def get(self, request, *args, **kwargs):
-#         appointment_id = kwargs.get("appointment_id")
-#         hash = kwargs.get("hash")
-#         action = kwargs.get("action")
-#         signer = signing.Signer()
-#         try:
-#             signer.unsign("{}|{}:{}".format(appointment_id, action, hash))
-#         except signing.BadSignature:
-#             return HttpResponseBadRequest()
-#         appointment = Appointment.objects.get(
-#             id=appointment_id
-#         )
-#         # TODO update appointment based on action and use logic (one time use and can only be guest if logical)
-#         if action == "accept":
-#             appointment.num_people += 1
-#             appointment.save()
-#             # return redirect(calendar)
-#
-#         return self.render_to_response({
-#             "appointment": appointment
-#         })
-
-
 class ProfileView(TemplateView):
     template_name = "profile.html"
 
@@ -277,59 +280,20 @@ class ProfileView(TemplateView):
             creator__id=username.id,
             available_start__gte=datetime.now(),
         )
+        created = sorted(created, key=operator.attrgetter('desired_time'))
         accepted = Appointment.objects.filter(
             current_people__id=username.id,
             available_start__gte=datetime.now(),
+        )
+        accepted = sorted(accepted, key=operator.attrgetter('desired_time'))
+        pending = RideRequest.objects.filter(
+            requester_id=username.id,
+            status="pending",
         )
         return self.render_to_response({
             'username': username,
             'created': created,
             'accepted': accepted,
+            'pending': pending,
             'domain': "127.0.0.1:8000",
         })
-
-# class RideView(TemplateResponseMixin, View):
-#     user = None
-#     ride = None
-#
-#     def get_template_names(self):
-#         if self.request.user.is_creator:
-#             template_name = 'creator.html'
-#         elif self.request.user.is_rider:
-#             template_name = 'rider.html'
-#         else:
-#             template_name = 'anonymous.html'
-#         return [template_name]
-#
-#     def get_form(self):
-#         if self.request.user.is_creator:
-#             return CreatorRideForm(
-# 				data=self.request.POST if self.request.method == 'POST' else None,
-#                 instance=self.ride,
-#             )
-#         elif self.request.user.is_rider:
-#             return RiderRideForm(
-# 				data=self.request.POST if self.request.method == 'POST' else None,
-#                 instance=self.ride,
-#             )
-#         return None
-#
-#     def dispatch(self, request, *args, **kwargs):
-#         self.ride = Ride.objects.get(pk=kwargs.get('ride_id'))
-#         return super(RideView, self).dispatch(request, *args, **kwargs)
-#
-#     def get(self, request, ride_id, *args, **kwargs):
-#         return self.render_to_response({
-#             'form': self.get_form(),
-#             'ride': self.ride,
-#         })
-#
-#     def post(self, request, ride_id, *args, **kwargs):
-#         form = self.get_form()
-#         if form.is_valid():
-#             # TODO: process form
-#             pass
-#         return self.render_to_response({
-#             'ride': self.ride,
-#             'form': form,
-#         })

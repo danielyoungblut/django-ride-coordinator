@@ -12,6 +12,44 @@ class RegistrationForm(BaseRegistrationForm):
         model = Yalie
 
 
+class LoginForm(forms.Form):
+    email = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Email',
+            },
+        ),
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Password',
+            },
+        ),
+    )
+
+    def clean(self):
+        try:
+            self.cleaned_data['yalie'] = Yalie.objects.only(
+                'email',
+                'password',
+            ).get(
+                email=self.cleaned_data.get('email'),
+            )
+        except Yalie.DoesNotExist:
+            raise forms.ValidationError(
+                message='Invalid Email or Password',
+            )
+        else:
+            password = self.cleaned_data.get('password','')
+            if not self.cleaned_data['yalie'].check_password(password):
+                raise forms.ValidationError(
+                    message='Invalid Email or Password',
+                )
+        return self.cleaned_data
+
 # TODO select date, then range, then time
 class AppointmentForm(forms.ModelForm):
     class Meta:

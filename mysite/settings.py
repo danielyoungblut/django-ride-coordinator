@@ -51,7 +51,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mysite.middleware.AuthMiddleware'
+    # 'mysite.middleware.LoginRequiredMiddleware'
 ]
+
+# MIDDLEWARE_CLASSES = (
+#     'mysite.middleware.LoginRequiredMiddleware'
+# )
 
 ROOT_URLCONF = 'mysite.urls'
 
@@ -142,5 +148,6 @@ DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 # login redirection
 LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/accounts/login'
 
 AUTH_USER_MODEL = "rides.Yalie"
