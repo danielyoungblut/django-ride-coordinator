@@ -38,6 +38,7 @@ from re import compile
 #                 return HttpResponseRedirect(settings.LOGIN_URL)
 #
 #         return response
+from django.urls.base import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from mysite import get_user
@@ -46,7 +47,16 @@ from mysite import get_user
 class AuthMiddleware(MiddlewareMixin, object):
     def process_request(self, request, *args, **kwargs):
         request.user = get_user(request)
-        # If not logged in
-        if not request.user:
-            from rides.views import LoginView
-            return LoginView.as_view()(request, *args, **kwargs)
+        # # # If not logged in or attempting to register or password reset will require login
+        # # if not request.user and request.path not in (
+        # #     reverse('registration_register'),
+        # #     reverse('auth_password_reset'),
+        # #     # reverse('password_reset'),
+        # #     reverse('auth_password_reset_done'),
+        # #     # reverse('auth_password_reset_confirm'),
+        # #     # reverse('auth_password_reset_complete'),
+        # #     reverse('auth_password_change'),
+        # #     reverse('auth_password_change_done'),
+        # # ):
+        # #     from rides.views import LoginView
+        #     return LoginView.as_view()(request, *args, **kwargs)

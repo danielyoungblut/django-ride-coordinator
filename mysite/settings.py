@@ -149,5 +149,8 @@ DEFAULT_FROM_EMAIL = SERVER_EMAIL
 # login redirection
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login'
+LOGIN_EXEMPT_URLS = (
+    r'^accounts/register/',
+)
 
 AUTH_USER_MODEL = "rides.Yalie"

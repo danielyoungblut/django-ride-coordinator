@@ -11,7 +11,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 # Create your views here.
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.urls.base import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
@@ -19,6 +18,7 @@ from django.views.generic.edit import CreateView, DeleteView
 from django.core import signing
 
 from mysite import login
+from mysite.decorators import login_required
 from rides.encoders import EventEncoder
 from rides.forms import AppointmentForm, RangeForm, EmailForm, LoginForm
 from rides.models import Appointment, Yalie, RideRequest
@@ -26,21 +26,16 @@ from rides.models import Appointment, Yalie, RideRequest
 
 # @login_required(login_url="accounts/login/")
 def home(request):
-    details = None
-    return render(
-        request,
-        "home.html",
-        {'details': details}
-    )
+    return redirect(calendar)
 
 
 # @login_required(login_url="accounts/login/")
 def index(request):
-    return HttpResponse("Hi, I will add stuff")
+    return redirect(calendar)
 
 
 class LoginView(TemplateView):
-    template_name = 'login.html'
+    template_name = 'registration/login.html'
 
     def get(self, *args, **kwargs):
         form = LoginForm()
@@ -62,7 +57,7 @@ class LoginView(TemplateView):
         })
 
 
-# @login_required(login_url="accounts/login/")
+@login_required(login_url="accounts/login/")
 def calendar(request):
     template_name = "calendar.html"
 
@@ -85,6 +80,10 @@ def calendar(request):
 
 class RideRequestView(TemplateView):
     template_name = "ride_request.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(RideRequestView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         ride_request_id = kwargs.get("ride_request_id")
@@ -129,6 +128,10 @@ class RideRequestView(TemplateView):
 class AppointmentCreateView(TemplateView):
     template_name = "appointment_create.html"
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AppointmentCreateView, self).dispatch(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         return self.render_to_response(
             context={
@@ -151,12 +154,17 @@ class AppointmentCreateView(TemplateView):
 class AppointmentView(TemplateView):
     template_name = "appointment_view.html"
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AppointmentView, self).dispatch(request, *args, **kwargs)
+
     def get(self, request, appointment_id, *args, **kwargs):
         appointment = get_object_or_404(Appointment, id=appointment_id)
         riders = appointment.current_people.filter()
         pending = RideRequest.objects.filter(
             requester_id=self.request.user.id,
             appointment_id=appointment.id,
+            status="pending"
         )
         is_creator = False
         is_rider = False
@@ -210,15 +218,27 @@ class AppointmentView(TemplateView):
                             messages.success(request, "Your email was sent")
             # TODO: add logic can't send twice or to self
             else:
-                rr = RideRequest.objects.create_ride_request(appointment, self.request.user)
-                rr.save()
-                rr.send_request_email(body)
-                messages.success(request, "Your request has been sent")
+                pending = RideRequest.objects.filter(
+                    requester_id=self.request.user.id,
+                    appointment_id=appointment.id,
+                    status="pending"
+                )
+                if not pending:
+                    rr = RideRequest.objects.create_ride_request(appointment, self.request.user)
+                    rr.save()
+                    rr.send_request_email(body)
+                    messages.success(request, "Your request has been sent")
+                else:
+                    messages.info(request, "Already sent a request that is currently pending")
             return redirect(calendar)
 
 
 class AppointmentDeleteView(TemplateView):
     template_name = "appointment_delete.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AppointmentDeleteView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, appointment_id, *args, **kwargs):
         appointment = get_object_or_404(Appointment, id=appointment_id)
@@ -271,8 +291,13 @@ class AppointmentDeleteView(TemplateView):
                 messages.success(request, "You have canceled your ride commitment")
             return redirect(calendar)
 
+
 class ProfileView(TemplateView):
     template_name = "profile.html"
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ProfileView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         username = self.request.user

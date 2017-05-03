@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <p>
+    <div class="row">
+    <div class="col-md-6">
+        <p>
         This is the appointment for {{ appointment.destination }} from {{ appointment.pickup }}. The creator of this appointment
         would like to leave at {{ appointment.desired_time }}, but could leave as early as {{ appointment.available_start }} or
-        as late as {{ appointment.available_end }}.
+        as late as {{ appointment.available_end }} There are currently {{ appointment.num_people }} of {{ appointment.max_people }} people.
     </p>
+    </div>
+    <div class="col-md-6">
+
     {% if is_creator %}
         <p>
             You created this appointment. If you would like to email the other participants. Write out a message
@@ -34,17 +39,10 @@
         </button>
     {% elif is_requester %}
         <p>
-            You have already requested to ride on this appointment. The request is either pending or you should have received
-            an email stating the status.
+            You have already requested to ride on this appointment. The request is currently pending when the creator responds
+            you will be notified by email.
         </p>
-{#        <form method="post" action="">#}
-{#            {% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <input type="submit" class="btn btn-default" value="Send Email"/>#}
-{#        </form>#}
-{#        <button type="button">#}
-{#            <a href="http://{{ domain }}/appointment/delete/{{ appointment.id }}">Delete Reservation</a>#}
-{#        </button>#}
+
     {% else %}
         <p>
             If you would like to join this ride, please write a message to your potential travel buddy. I recommend
@@ -56,6 +54,6 @@
             <input type="submit" class="btn btn-default" value="Send Email"/>
         </form>
     {% endif %}
-
-
+        </div>
+</div>
 {% endblock %}
