@@ -3,6 +3,7 @@ from json import dumps
 
 import operator
 from django.contrib import messages
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.expressions import F
 from django.http.request import HttpRequest
@@ -120,7 +121,7 @@ class RideRequestView(TemplateView):
             return self.render_to_response({
                 "ride_request": ride_request,
                 "action": action,
-                'domain': get_current_site().domain,
+                'domain': Site.objects.get_current(),
             })
         else:
             messages.error(request, "Unable to {} because they have already been accepted/declined".format(action))
@@ -185,7 +186,7 @@ class AppointmentView(TemplateView):
                 'is_rider': is_rider,
                 'is_requester': is_requester,
                 'riders': riders,
-                'domain': get_current_site().domain,
+                'domain': Site.objects.get_current(),
             },
         )
 
@@ -266,7 +267,7 @@ class AppointmentDeleteView(TemplateView):
                 'is_creator': is_creator,
                 'is_rider': is_rider,
                 'is_pending': is_pending,
-                'domain': get_current_site().domain,
+                'domain': Site.objects.get_current(),
             },
         )
 
@@ -347,5 +348,5 @@ class ProfileView(TemplateView):
             'created': created,
             'accepted': accepted,
             'pending': pending,
-            'domain': get_current_site().domain,
+            'domain': Site.objects.get_current(),
         })

@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.core.mail.message import EmailMessage
@@ -112,7 +113,7 @@ class Appointment(models.Model):
                     "email": email,
                     "body": body,
                     "sender": sender,
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Ride Coordinator: Someone you are riding with sent a message",
@@ -129,7 +130,7 @@ class Appointment(models.Model):
                     "appointment": self,
                     "email": email,
                     # "body": body,
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Ride Coordinator: A ride has been cancelled",
@@ -147,7 +148,7 @@ class Appointment(models.Model):
                     "email": email,
                     "sender": sender,
                     # "body": body,
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Ride Coordinator: A ride has been cancelled",
@@ -211,7 +212,7 @@ class RideRequest(models.Model):
                     "content": content,
                     "accept_url": self.get_action_url("accept"),
                     "decline_url": self.get_action_url("decline"),
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Rides: Somebody wants to ride with you",
@@ -226,7 +227,7 @@ class RideRequest(models.Model):
                 template_name="accept_email.html",
                 context={
                     "ride_request": self,
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Rides: Your ride request has been accepted",
@@ -242,7 +243,7 @@ class RideRequest(models.Model):
                 context={
                     "ride_request": self,
                     # "app": self.appointment.
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Ride Coordinator: Regrettably, your ride request has been declined",
@@ -260,7 +261,7 @@ class RideRequest(models.Model):
                     "email": email,
                     "sender": sender,
                     # "body": body,
-                    'domain': get_current_site().domain,
+                    'domain': Site.objects.get_current(),
                 }
             ),
             subject="Yale Ride Coordinator: A ride has been cancelled",
