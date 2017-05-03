@@ -1,5 +1,5 @@
 Hi {{ ride_request.requester.email }},
 <br>
-Good news. The
+Good news. {{ ride_request.appointment.creator.email }} accepted your ride request for the
 <a href="http://{{ domain }}/appointment/{{ ride_request.appointment.id }}">appointment</a>
-at {{ ride_request.appointment.desired_time }} from {{ ride_request.appointment.pickup }} to {{ ride_request.appointment.destination }} was accepted.
+at {{ ride_request.appointment.desired_time }} from {{ ride_request.appointment.pickup }} to {{ ride_request.appointment.destination }}.

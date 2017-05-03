@@ -24,9 +24,10 @@ from rides.forms import AppointmentForm, RangeForm, EmailForm, LoginForm
 from rides.models import Appointment, Yalie, RideRequest
 
 
-# @login_required(login_url="accounts/login/")
+@login_required(login_url="accounts/login/")
 def home(request):
-    return redirect(calendar)
+    template_name = "home.html"
+    return render(request, template_name)
 
 
 # @login_required(login_url="accounts/login/")
@@ -182,6 +183,7 @@ class AppointmentView(TemplateView):
                 'is_creator': is_creator,
                 'is_rider': is_rider,
                 'is_requester': is_requester,
+                'riders': riders,
                 'domain': "127.0.0.1:8000"
             },
         )
@@ -201,22 +203,20 @@ class AppointmentView(TemplateView):
         if form.is_valid():
             body = form.cleaned_data['body']
             if is_creator:
-                # TODO: maybe send message if their are no riders
                 if riders:
                     for rider in riders:
-                        appointment.send_generic_email(body, rider.email)
+                        appointment.send_generic_email(body, rider.email, self.request.user.email)
                     messages.success(request, "Your email was sent")
                 else:
                     messages.info(request, "There are no confirmed riders to email")
             elif is_rider:
-                appointment.send_generic_email(body, appointment.creator.email)
+                appointment.send_generic_email(body, appointment.creator.email, self.request.user.email)
                 messages.success(request, "Your email was sent")
                 if riders:
                     for rider in riders:
                         if rider != self.request.user:
-                            appointment.send_generic_email(body, rider.email)
+                            appointment.send_generic_email(body, rider.email, self.request.user.email)
                             messages.success(request, "Your email was sent")
-            # TODO: add logic can't send twice or to self
             else:
                 pending = RideRequest.objects.filter(
                     requester_id=self.request.user.id,
@@ -229,7 +229,7 @@ class AppointmentView(TemplateView):
                     rr.send_request_email(body)
                     messages.success(request, "Your request has been sent")
                 else:
-                    messages.info(request, "Already sent a request that is currently pending")
+                    messages.success(request, "Your request has been canceled")
             return redirect(calendar)
 
 
@@ -246,16 +246,25 @@ class AppointmentDeleteView(TemplateView):
         user = self.request.user
         is_creator = False
         is_rider = False
+        pending = RideRequest.objects.filter(
+            requester_id=self.request.user.id,
+            appointment_id=appointment.id,
+            status="pending"
+        )
+        is_pending = False
         if user.email == appointment.creator.email:
             is_creator = True
         elif user in riders:
             is_rider = True
+        elif pending:
+            is_pending = True
         return self.render_to_response(
             context={
                 'form': EmailForm(),
                 'appointment': appointment,
                 'is_creator': is_creator,
                 'is_rider': is_rider,
+                'is_pending': is_pending,
                 'domain': "127.0.0.1:8000"
             },
         )
@@ -265,10 +274,18 @@ class AppointmentDeleteView(TemplateView):
         riders = appointment.current_people.filter()
         is_creator = False
         is_rider = False
+        pending = RideRequest.objects.filter(
+            requester_id=self.request.user.id,
+            appointment_id=appointment.id,
+            status="pending"
+        )
+        is_pending = False
         if self.request.user.id == appointment.creator.id:
             is_creator = True
         elif self.request.user in riders:
             is_rider = True
+        elif pending:
+            is_pending = True
         if request.POST.get('delete'):
             if is_creator:
                 for rider in riders:
@@ -282,13 +299,22 @@ class AppointmentDeleteView(TemplateView):
                 )
                 for rider in riders:
                     if rider != self.request.user:
-                        appointment.send_cancel_email(rider.email)
-                appointment.send_cancel_email(appointment.creator.email)
+                        appointment.send_cancel_email(rider.email, self.request.user.email)
+                appointment.send_cancel_email(appointment.creator.email, self.request.user.email)
                 appointment.num_people = appointment.num_people-1
                 appointment.current_people.remove(self.request.user)
                 appointment.save()
                 rr.delete()
                 messages.success(request, "You have canceled your ride commitment")
+            elif is_pending:
+                rr = RideRequest.objects.get(
+                    appointment_id=appointment.id,
+                    requester_id=self.request.user.id,
+                    status="pending"
+                )
+                rr.send_cancel_request_email(appointment.creator.email, self.request.user.email)
+                rr.delete()
+                messages.success(request, "You have canceled your ride request")
             return redirect(calendar)
 
 

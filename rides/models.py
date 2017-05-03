@@ -102,7 +102,7 @@ class Appointment(models.Model):
             }
         )
 
-    def send_generic_email(self, body, email):
+    def send_generic_email(self, body, email, sender):
         msg = EmailMessage(
             body=render_to_string(
                 template_name="generic_email.html",
@@ -110,10 +110,11 @@ class Appointment(models.Model):
                     "appointment": self,
                     "email": email,
                     "body": body,
+                    "sender": sender,
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="Someone you are riding with sent a message",
+            subject="Yale Ride Coordinator: Someone you are riding with sent a message",
             to=[email],
         )
         msg.content_subtype = 'html'
@@ -130,24 +131,25 @@ class Appointment(models.Model):
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="A ride has been cancelled",
+            subject="Yale Ride Coordinator: A ride has been cancelled",
             to=[email],
         )
         msg.content_subtype = 'html'
         return msg.send()
 
-    def send_cancel_email(self, email):
+    def send_cancel_email(self, email, sender):
         msg = EmailMessage(
             body=render_to_string(
                 template_name="cancel_email.html",
                 context={
                     "appointment": self,
                     "email": email,
+                    "sender": sender,
                     # "body": body,
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="A ride has been cancelled",
+            subject="Yale Ride Coordinator: A ride has been cancelled",
             to=[email],
         )
         msg.content_subtype = 'html'
@@ -202,7 +204,7 @@ class RideRequest(models.Model):
     def send_request_email(self, content):
         msg = EmailMessage(
             body=render_to_string(
-                template_name="confirmation_email.html",
+                template_name="request_email.html",
                 context={
                     "ride_request": self,
                     "content": content,
@@ -211,7 +213,7 @@ class RideRequest(models.Model):
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="Somebody wants to ride with you",
+            subject="Yale Rides: Somebody wants to ride with you",
             to=[self.appointment.creator.email, ],
         )
         msg.content_subtype = 'html'
@@ -226,7 +228,7 @@ class RideRequest(models.Model):
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="Your ride request has been accepted",
+            subject="Yale Rides: Your ride request has been accepted",
             to=[self.requester.email, ],
         )
         msg.content_subtype = 'html'
@@ -242,8 +244,26 @@ class RideRequest(models.Model):
                     "domain": "127.0.0.1:8000",
                 }
             ),
-            subject="Regrettably, your ride request has been declined",
+            subject="Yale Ride Coordinator: Regrettably, your ride request has been declined",
             to=[self.requester.email, ],
+        )
+        msg.content_subtype = 'html'
+        return msg.send()
+
+    def send_cancel_request_email(self, email, sender):
+        msg = EmailMessage(
+            body=render_to_string(
+                template_name="cancel_request_email.html",
+                context={
+                    "appointment": self,
+                    "email": email,
+                    "sender": sender,
+                    # "body": body,
+                    "domain": "127.0.0.1:8000",
+                }
+            ),
+            subject="Yale Ride Coordinator: A ride has been cancelled",
+            to=[email],
         )
         msg.content_subtype = 'html'
         return msg.send()

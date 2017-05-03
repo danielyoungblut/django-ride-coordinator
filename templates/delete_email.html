@@ -1,8 +1,9 @@
 Hi {{ email }},
 <br>
-Unfortunately, the creator of the appointment
+Unfortunately, {{ appointment.creator.email }} had to cancel the
+ <a href="http://{{ domain }}/appointment/{{ ride_request.appointment.id }}">appointment</a>
 at {{ appointment.desired_time }} from {{ appointment.pickup }}
-to {{ appointment.destination }} has cancelled the appointment.
+to {{ appointment.destination }}.
 <br>
 {% if body %}
     They sent the following message:

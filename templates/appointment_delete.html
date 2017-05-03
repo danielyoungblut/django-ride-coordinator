@@ -4,19 +4,21 @@
     {% if is_creator %}
         <p>
             This is the appointment you created for {{ appointment.destination }} from {{ appointment.pickup }}.
-            Desiring to leave at {{ appointment.desired_time }}, but could leave as early as {{ appointment.available_start }} or
+            Desiring to leave at {{ appointment.desired_time }}, but could leave as early
+            as {{ appointment.available_start }} or
             as late as {{ appointment.available_end }}.
         </p>
         <p>
-            Are you sure you want to delete this appointment? Try not to cancel rides if other people have already joined.
+            Are you sure you want to delete this appointment? Try not to cancel rides if other people have already
+            joined.
         </p>
         <form method="post" action="">
             {% csrf_token %}
             <input type="submit" class="btn btn-default" value="Delete Appointment" name="delete"/>
+            <button type="button" class="btn btn-inverse">
+                <a href="{% url 'calendar' %}">Cancel</a>
+            </button>
         </form>
-        <button type="button">
-            <a href="{% url 'calendar' %}">Cancel</a>
-        </button>
     {% elif is_rider %}
         <p>
             This is the appointment to {{ appointment.destination }} from {{ appointment.pickup }}.
@@ -25,13 +27,28 @@
         <p>
             Are you sure you want to cancel? Other people may be counting on you sharing this ride.
         </p>
-         <form method="post" action="">
+        <form method="post" action="">
             {% csrf_token %}
             <input type="submit" class="btn btn-default" value="Delete Ride Reservation" name="delete"/>
+            <button type="button" class="btn btn-inverse">
+                <a href="{% url 'calendar' %}">Cancel</a>
+            </button>
         </form>
-        <button type="button">
-            <a href="{% url 'calendar' %}">Cancel</a>
-        </button>
+    {% elif is_pending %}
+        <p>
+            This is the appointment to {{ appointment.destination }} from {{ appointment.pickup }} at
+            {{ appointment.desired_time }} The appointment creator has not responded yet.
+        </p>
+        <p>
+            Are you sure you want to cancel this request?
+        </p>
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-default" value="Cancel Ride Request" name="delete"/>
+            <button type="button" class="btn btn-inverse">
+                <a href="{% url 'calendar' %}">Cancel</a>
+            </button>
+        </form>
     {% else %}
         <p>
             You shouldn't be here.

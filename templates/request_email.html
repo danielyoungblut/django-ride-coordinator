@@ -1,12 +1,13 @@
 Hi {{ ride_request.appointment.creator.email }},
 <br>
-Someone would like to ride with for your
+{{ ride_request.requester.email }} would like to travel with for the
 <a href="http://{{ domain }}/appointment/{{ ride_request.appointment.id }}">appointment</a>
 at {{ ride_request.appointment.desired_time }} from {{ ride_request.appointment.pickup }} to {{ ride_request.appointment.destination }}.
 <br>
-The requester included this message:
+They included this message:
 <br>
 {{ content }}
+<br>
 If you would like to accept please follow this link:
 <a href="http://{{ domain }}{{ accept_url }}">accept</a>
 <br>

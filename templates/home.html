@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-    {% if details %}
-        alert("An Appointment was Created")
-    {% endif %}
-{#    {% if messages %}#}
-{#    <ul class="messages">#}
-{#        {% for message in messages %}#}
-{#        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>#}
-{#        {% endfor %}#}
-{#    </ul>#}
-{#    {% endif %}#}
-
     <p>
-    Hello you are home
+        This is the home page for Yale Ride Coordinator. This website was created so that Yalie's could
+        easily find people to carpool with. So if you are looking to share an Uber to the airport with someone,
+        look no further.
+    </p>
+    <p>
+        You can check out what other people's travel plans are on the <a href="{% url 'calendar' %}">Calendar</a> page.
+        If none of those appointments work for you, you can <a href="{% url 'appointment_create' %}">create your own</a>.
+        All appointments are anonymous until rides
+        have been confirmed. When you request a ride, your email will be given to the creator of the appointment.
+        If you accept someone's request to ride with you, your email will be given to them. When you join
+        an appointment, all other members of that appointment will be able to see that you joined and your email.
     </p>
 {% endblock %}
 

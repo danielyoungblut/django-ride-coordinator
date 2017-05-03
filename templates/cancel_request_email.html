@@ -1,9 +1,9 @@
 Hi {{ email }},
 <br>
-Unfortunately, {{ sender }} canceled their ride commitment for the
+{{ sender }} canceled their ride request for the
 <a href="http://{{ domain }}/appointment/{{ appointment.id }}">appointment</a>
 at {{ appointment.desired_time }} from {{ appointment.pickup }}
-to {{ appointment.destination }}.
+to {{ appointment.destination }}. The links in the previous ride request email from {{ sender }} are now deactivated.
 <br>
 {% if body %}
     They sent the following message:
