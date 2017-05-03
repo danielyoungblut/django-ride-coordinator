@@ -1,3 +1,4 @@
 # PYTHON COMPILED FILES
 *.py[cod]
 **/.idea/
+db.sqlite3
