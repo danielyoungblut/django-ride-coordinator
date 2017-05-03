@@ -331,12 +331,12 @@ class ProfileView(TemplateView):
         username = self.request.user
         created = Appointment.objects.filter(
             creator__id=username.id,
-            available_start__gte=datetime.now(),
+            available_end__gte=datetime.now(),
         )
         created = sorted(created, key=operator.attrgetter('desired_time'))
         accepted = Appointment.objects.filter(
             current_people__id=username.id,
-            available_start__gte=datetime.now(),
+            available_end__gte=datetime.now(),
         )
         accepted = sorted(accepted, key=operator.attrgetter('desired_time'))
         pending = RideRequest.objects.filter(
