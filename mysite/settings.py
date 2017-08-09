@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
-from rides import creds
+# from rides import creds
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -157,9 +157,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = creds.email_name
-EMAIL_HOST_PASSWORD = creds.email_password
-SERVER_EMAIL = creds.email_name
+EMAIL_HOST_USER = 'yale.rides@gmail.com'
+EMAIL_HOST_PASSWORD = 'RideAppPassword'
+SERVER_EMAIL = 'yale.rides@gmail.com'
+# EMAIL_HOST_USER = creds.email_name
+# EMAIL_HOST_PASSWORD = creds.email_password
+# SERVER_EMAIL = creds.email_name
 DEFAULT_FROM_EMAIL = SERVER_EMAIL
 
 # login redirection
